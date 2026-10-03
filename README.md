@@ -54,6 +54,8 @@ Actively developed, not yet a 1.0. Expect rough edges.
   windows by process name + window class.
 - Optional **launch on boot**: a "Launch on boot" toggle in the tray icon's right-click menu (or
   `launchOnBoot` in config) registers Wtile in the per-user Run key so it starts with Windows.
+  "Launch on boot as administrator" (`launchOnBootElevated`) starts it elevated through a
+  scheduled task instead, so it can tile windows running as administrator.
 
 
 ## Download

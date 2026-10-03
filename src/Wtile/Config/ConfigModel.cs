@@ -57,6 +57,9 @@ public sealed class GeneralConfig
     /// the tray toggle. A plain bool defaulting to false would silently unregister on the next
     /// reload after someone turned it on from the tray.</summary>
     public bool? LaunchOnBoot { get; set; }
+
+    // Same omitted-means-untouched rule as LaunchOnBoot, via an elevated scheduled task.
+    public bool? LaunchOnBootElevated { get; set; }
 }
 
 public sealed class LayoutConfig
