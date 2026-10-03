@@ -252,7 +252,20 @@ internal sealed class ToggleTaskbarCommand(WindowManager manager) : ICommand
 internal sealed class ToggleLaunchOnBootCommand : ICommand
 {
     public string Name => "toggle-launch-on-boot";
-    public void Execute(IReadOnlyList<string> args) => StartupRegistration.SetEnabled(!StartupRegistration.IsEnabled());
+
+    public void Execute(IReadOnlyList<string> args)
+    {
+        bool enable = !StartupRegistration.IsEnabled();
+        if (enable && !ElevatedStartupTask.SetEnabled(false))
+            return;
+        StartupRegistration.SetEnabled(enable);
+    }
+}
+
+internal sealed class ToggleLaunchOnBootElevatedCommand : ICommand
+{
+    public string Name => "toggle-launch-on-boot-elevated";
+    public void Execute(IReadOnlyList<string> args) => ElevatedStartupTask.SetEnabled(!ElevatedStartupTask.IsEnabled());
 }
 
 /// <summary>Prints the focused window's process/class/title to the console -- lets you copy exact
@@ -359,6 +372,7 @@ internal static class BuiltinCommands
         registry.Register(new QuitCommand());
         registry.Register(new ToggleTaskbarCommand(manager));
         registry.Register(new ToggleLaunchOnBootCommand());
+        registry.Register(new ToggleLaunchOnBootElevatedCommand());
         registry.Register(new InspectWindowCommand());
         return registry;
     }

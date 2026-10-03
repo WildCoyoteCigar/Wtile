@@ -39,6 +39,13 @@ general:
   # registered: with "true" here it's whichever ran last, with the line left out it's whichever
   # you last ticked from the tray -- the tick shows only the build you're in.
   # launchOnBoot: true
+  # Same, but starts Wtile as administrator at login, through a scheduled task instead of the Run
+  # key (Windows never elevates Run key entries). Needed to tile windows running as administrator,
+  # which a non-elevated Wtile isn't allowed to move. Apps Wtile launches inherit the elevation.
+  # Mirrors the tray's "Launch on boot as administrator" item, follows the same left-out vs.
+  # true/false rule as launchOnBoot, and turning it on turns launchOnBoot off (both at once would
+  # start two Wtiles at login). Changing it from a non-elevated Wtile shows one UAC prompt.
+  # launchOnBootElevated: true
 
 # blacklist: exclude specific windows from tiling entirely, matched by regex against the
 # window's process name, window class name, and/or title (case-insensitive, unanchored -- add

@@ -129,6 +129,23 @@ public class ConfigLoaderTests
         Assert.Null(ConfigLoader.LoadFromFile(SampleConfigPath).Config.General.LaunchOnBoot);
     }
 
+    [Fact]
+    public void LaunchOnBootElevated_OmittedIsNull_SoExistingConfigsStayOff()
+    {
+        Assert.Null(ConfigLoader.Load("general:\n  tagCount: 9\n").Config.General.LaunchOnBootElevated);
+        Assert.Null(ConfigLoader.LoadFromFile(SampleConfigPath).Config.General.LaunchOnBootElevated);
+    }
+
+    [Fact]
+    public void LaunchOnBootAndElevated_BothTrue_KeepsElevatedWithWarning()
+    {
+        ConfigLoadResult result = ConfigLoader.Load("general:\n  launchOnBoot: true\n  launchOnBootElevated: true\n");
+
+        Assert.True(result.Config.General.LaunchOnBootElevated);
+        Assert.False(result.Config.General.LaunchOnBoot);
+        Assert.Contains(result.Warnings, w => w.Contains("launchOnBootElevated"));
+    }
+
     [Theory]
     [InlineData("true", true)]
     [InlineData("false", false)]

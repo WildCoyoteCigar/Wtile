@@ -55,6 +55,11 @@ public static class ConfigLoader
             warnings.Add("general.focusedBorderWidth cannot be negative; clamped to 0.");
             config.General.FocusedBorderWidth = 0;
         }
+        if (config.General.LaunchOnBoot == true && config.General.LaunchOnBootElevated == true)
+        {
+            warnings.Add("general.launchOnBoot and general.launchOnBootElevated can't both be true; using launchOnBootElevated.");
+            config.General.LaunchOnBoot = false;
+        }
 
         if (config.Layouts.Count == 0)
         {

@@ -28,6 +28,7 @@ internal sealed unsafe class TrayIcon : IDisposable
     private const uint MenuIdReload = 1;
     private const uint MenuIdQuit = 2;
     private const uint MenuIdLaunchOnBoot = 3;
+    private const uint MenuIdLaunchOnBootElevated = 4;
 
     /// <summary>RT_GROUP_ICON id the .NET SDK embeds Wtile.csproj's &lt;ApplicationIcon&gt; under
     /// (same ordinal as IDI_APPLICATION, which is coincidental -- this loads Wtile's own icon out
@@ -73,9 +74,8 @@ internal sealed unsafe class TrayIcon : IDisposable
         using DestroyMenuSafeHandle menu = PInvoke.CreatePopupMenu_SafeHandle();
         // Check state is read fresh each time the menu opens, so it stays honest if the Run entry
         // was changed from outside (config reload, or the user editing the registry directly).
-        MENU_ITEM_FLAGS launchOnBootFlags = MENU_ITEM_FLAGS.MF_STRING
-            | (StartupRegistration.IsEnabled() ? MENU_ITEM_FLAGS.MF_CHECKED : MENU_ITEM_FLAGS.MF_UNCHECKED);
-        PInvoke.AppendMenu(menu, launchOnBootFlags, MenuIdLaunchOnBoot, "Launch on boot");
+        PInvoke.AppendMenu(menu, CheckedIf(StartupRegistration.IsEnabled()), MenuIdLaunchOnBoot, "Launch on boot");
+        PInvoke.AppendMenu(menu, CheckedIf(ElevatedStartupTask.IsEnabled()), MenuIdLaunchOnBootElevated, "Launch on boot as administrator");
         PInvoke.AppendMenu(menu, MENU_ITEM_FLAGS.MF_STRING, MenuIdReload, "Reload config");
         PInvoke.AppendMenu(menu, MENU_ITEM_FLAGS.MF_STRING, MenuIdQuit, "Quit Wtile");
 
@@ -85,6 +85,9 @@ internal sealed unsafe class TrayIcon : IDisposable
         PInvoke.SetForegroundWindow(_hwnd);
         PInvoke.TrackPopupMenu(menu, TRACK_POPUP_MENU_FLAGS.TPM_RIGHTBUTTON, cursor.X, cursor.Y, _hwnd, null);
     }
+
+    private static MENU_ITEM_FLAGS CheckedIf(bool isChecked) =>
+        MENU_ITEM_FLAGS.MF_STRING | (isChecked ? MENU_ITEM_FLAGS.MF_CHECKED : MENU_ITEM_FLAGS.MF_UNCHECKED);
 
     private static void EnsureClassRegistered()
     {
@@ -123,6 +126,8 @@ internal sealed unsafe class TrayIcon : IDisposable
             uint id = unchecked((uint)(wParam.Value & 0xFFFF));
             if (id == MenuIdLaunchOnBoot)
                 self._commands.TryExecute("toggle-launch-on-boot", []);
+            else if (id == MenuIdLaunchOnBootElevated)
+                self._commands.TryExecute("toggle-launch-on-boot-elevated", []);
             else if (id == MenuIdReload)
                 self._commands.TryExecute("reload", []);
             else if (id == MenuIdQuit)
